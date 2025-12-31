@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/genkit-service', '-f', 'genkit.Dockerfile', '.']
+images:
+- 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/genkit-service'

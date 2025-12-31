@@ -1,0 +1,20 @@
+diff --git a/node_modules/fetch-blob/from.js b/node_modules/fetch-blob/from.js
+index 585a133..4c62b48 100644
+--- a/node_modules/fetch-blob/from.js
++++ b/node_modules/fetch-blob/from.js
+@@ -1,5 +1,5 @@
+ import { Blob } from './index.js'
+-import { promises } from 'node:fs'
++// import { promises } from 'node:fs'
+ import { stat } from 'node:fs'
+ 
+ /**
+@@ -11,7 +11,7 @@
+  */
+ async function from (path) {
+   const handle = await promises.open(path, 'r')
+-  const { size } = await handle.stat()
++  const { size } = await promises.stat(path)
+   return new Blob([handle.createReadStream()], { size })
+ }
+ 

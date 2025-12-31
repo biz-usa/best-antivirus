@@ -1,0 +1,281 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+
+    /* Chart variables */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+     /* Sidebar Variables */
+    --sidebar-background: 224 71.4% 4.1%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 217.2 91.2% 59.8%;
+
+    /* Chart variables */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+ 
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+    .bg-primary {
+        background-image: linear-gradient(to bottom right, hsl(var(--primary) / 0.9), hsl(var(--primary)));
+        box-shadow: 0 4px 15px -2px hsl(var(--primary) / 0.4);
+    }
+    
+    .hero-card {
+        @apply p-4;
+    }
+
+    .hero-bg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: hsl(var(--background));
+        background-image:
+            linear-gradient(to right, hsl(var(--primary)/0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, hsl(var(--primary)/0.1) 1px, transparent 1px);
+        background-size: 4rem 4rem;
+        animation: pan-grid 20s linear infinite;
+        z-index: 0;
+    }
+}
+
+@keyframes pan-grid {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 64px 64px;
+  }
+}
+
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+
+  .prose {
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-semibold tracking-tight;
+    }
+    h1 { @apply text-4xl mt-8 mb-4; }
+    h2 { @apply text-3xl mt-6 mb-3 border-b pb-2; }
+    h3 { @apply text-2xl mt-5 mb-2; }
+    h4 { @apply text-xl mt-4 mb-2; }
+    h5 { @apply text-lg mt-3 mb-1; }
+    h6 { @apply text-base mt-2 mb-1; }
+
+    p { @apply leading-7 mb-4; }
+    ul { @apply list-disc list-outside mb-4 pl-4; }
+    ol { @apply list-decimal list-outside mb-4 pl-4; }
+    li { @apply mb-2; }
+    blockquote { @apply pl-4 italic border-l-4 my-4; }
+    a { @apply text-primary hover:underline; }
+
+    table {
+      @apply my-4 w-full table-auto border-collapse border border-border;
+    }
+    table th,
+    table td {
+      @apply border border-border px-4 py-2 text-left;
+    }
+    table th {
+      @apply font-semibold bg-muted;
+    }
+    table p {
+      @apply my-0;
+    }
+  }
+  
+  .tiptap {
+    table {
+      @apply w-full table-auto border-collapse border border-border;
+    }
+    table th,
+    table td {
+      @apply border border-border px-4 py-2 text-left relative;
+    }
+    table th {
+      @apply font-semibold bg-secondary;
+    }
+    .selectedCell:after {
+      @apply absolute inset-0 z-10 pointer-events-none;
+      content: "";
+      background: hsl(var(--primary) / 0.1);
+    }
+  }
+
+}
+
+@media print {
+  body {
+    background-color: #fff !important;
+    color: #000 !important;
+    background-image: none !important;
+    font-size: 10px;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .dark {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+  }
+
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  
+  .print-area {
+     padding: 0;
+     margin: 0;
+     width: 100%;
+     max-width: 100%;
+  }
+
+  .invoice-content {
+    width: 100%;
+    padding: 0;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: transparent !important;
+  }
+  
+  .invoice-content .card, .invoice-content .card-content {
+     box-shadow: none;
+     border: none;
+     background-color: transparent !important;
+  }
+
+  .print\:bg-secondary\/30 {
+    background-color: hsl(var(--secondary) / 0.3) !important;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+  
+  tfoot {
+    display: table-footer-group;
+  }
+
+  th, td {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    text-align: left;
+  }
+}

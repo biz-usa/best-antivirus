@@ -1,0 +1,36 @@
+# The region to deploy the backend to.
+# Targeting USA audience as requested
+location: us-central1
+# The name of the backend.
+# This is optional, but recommended.
+backend:
+# The ID of the backend.
+# This should be unique within the project.
+  id: my-nextjs-backend
+# The resources to allocate to the backend.
+# This is optional.
+  resources:
+    cpu: 3
+    memoryMiB: 4096
+    minInstances: 1 # Critical for speed: Keeps 1 server always ready (no cold start)
+    maxInstances: 10
+    concurrency: 100
+# The environment variables to set.
+# This is optional.
+  env:
+    - variable: FIREBASE_API_KEY
+      secret: FIREBASE_API_KEY
+    - variable: FIREBASE_AUTH_DOMAIN
+      secret: FIREBASE_AUTH_DOMAIN
+    - variable: FIREBASE_PROJECT_ID
+      secret: FIREBASE_PROJECT_ID
+    - variable: FIREBASE_STORAGE_BUCKET
+      secret: FIREBASE_STORAGE_BUCKET
+    - variable: FIREBASE_MESSAGING_SENDER_ID
+      secret: FIREBASE_MESSAGING_SENDER_ID
+    - variable: FIREBASE_APP_ID
+      secret: FIREBASE_APP_ID
+    - variable: FIREBASE_MEASUREMENT_ID
+      secret: FIREBASE_MEASUREMENT_ID
+    - variable: FIREBASE_SERVICE_ACCOUNT
+      secret: FIREBASE_SERVICE_ACCOUNT

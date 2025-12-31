@@ -1,0 +1,129 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions to check user roles and permissions.
+    // Safely check if admin_users document exists before accessing data.
+    
+    function getAdminDoc() {
+      return get(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+    
+    function adminDocExists() {
+      return exists(/databases/$(database)/documents/admin_users/$(request.auth.uid));
+    }
+
+    function isSuperAdmin() {
+      return adminDocExists() && getAdminDoc().data.role == 'superadmin';
+    }
+
+    function isModerator() {
+        return adminDocExists() && (getAdminDoc().data.role == 'moderator' || getAdminDoc().data.role == 'superadmin');
+    }
+    
+    function hasPermission(permission) {
+       return adminDocExists() && 
+              (
+                getAdminDoc().data.role == 'superadmin' || 
+                (getAdminDoc().data.permissions != null && permission in getAdminDoc().data.permissions)
+              );
+    }
+
+    function isSignedIn() {
+      // Check if the user is signed in.
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      // Check if the requesting user is the owner of the document.
+      return request.auth.uid == userId;
+    }
+
+    // Publicly readable collections
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if hasPermission('manage_products');
+    }
+    
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if hasPermission('manage_categories');
+    }
+
+    match /brands/{brandId} {
+      allow read: if true;
+      allow write: if hasPermission('manage_brands');
+    }
+    
+    match /site_config/main {
+      allow read: if true;
+      // Allow writing to site config if user has any of the appearance-related permissions
+      allow write: if hasPermission('manage_appearance') || hasPermission('manage_plugins') || hasPermission('manage_payments') || hasPermission('manage_tax_settings') || hasPermission('manage_integrations') || hasPermission('manage_loyalty_program');
+    }
+    
+    match /pages/{pageSlug} {
+      allow read: if true;
+      allow write: if hasPermission('manage_pages');
+    }
+
+    // User-specific data
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isModerator();
+      allow create: if isSignedIn(); // Anyone signed in can create their own profile
+      allow update: if isOwner(userId) || hasPermission('manage_customers');
+      allow delete: if isSuperAdmin(); // Only super admins can delete user profiles
+    }
+    
+    match /orders/{orderId} {
+      // Allow read if user is the customer of the order OR has permission
+      // Use resource.data to check the document fields
+      allow read: if (resource.data.customer.id == request.auth.uid) || hasPermission('manage_orders');
+      
+      // Allow update if user is owner (e.g. cancel order if logic permits) or admin
+      allow update: if (resource.data.customer.id == request.auth.uid) || hasPermission('manage_orders');
+      
+      allow create: if isSignedIn(); // Users can create their own orders during checkout
+    }
+
+    match /notifications/{notificationId} {
+      // Allow a user to read their own notifications
+      allow read: if resource.data.userId == request.auth.uid;
+      // Allow a user to update their own notification (e.g., mark as read).
+      allow update: if resource.data.userId == request.auth.uid;
+      // Allow server-side processes to create notifications for a user.
+      allow create: if true; 
+    }
+    
+    match /stockNotifications/{notificationId} {
+        allow read: if hasPermission('manage_products');
+        allow create: if true; // Anyone can request a stock notification
+        allow update: if hasPermission('manage_products'); // Only admins can update the 'notified' status
+    }
+
+    // CMS-specific collections
+    match /admin_users/{userId} {
+        allow read, write: if hasPermission('manage_moderators');
+    }
+
+    match /discounts/{discountId} {
+        allow read: if true; // Allow reading for discount application
+        allow write: if hasPermission('manage_discounts');
+    }
+    
+    match /email_campaigns/{campaignId} {
+        allow read, write: if hasPermission('manage_email_campaigns');
+    }
+    
+    match /tax_rates/{rateId} {
+        allow read: if true;
+        allow write: if hasPermission('manage_tax_settings');
+    }
+    
+    match /counters/{counterName} {
+        // Restrict counter updates to signed-in users.
+        allow write: if isSignedIn(); 
+        allow read: if hasPermission('manage_orders');
+    }
+  }
+}
