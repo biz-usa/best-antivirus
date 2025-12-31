@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
@@ -36,7 +35,10 @@ interface RichTextEditorProps {
     onChange: (richText: string) => void;
 }
 
-const TableToolbar = ({ editor }: { editor: Editor }) => (
+const TableToolbar = ({ editor }: { editor: Editor }) => {
+    // Cast to any to avoid type errors with chained commands
+    const e = editor as any;
+    return (
     <>
         <Separator orientation="vertical" className="h-6" />
         <Popover>
@@ -45,23 +47,24 @@ const TableToolbar = ({ editor }: { editor: Editor }) => (
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2">
                 <div className="grid grid-cols-4 gap-1">
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Insert Table</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().addColumnBefore().run()} disabled={!editor.can().addColumnBefore()}>Add Column Before</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().addColumnAfter().run()} disabled={!editor.can().addColumnAfter()}>Add Column After</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteColumn().run()} disabled={!editor.can().deleteColumn()}>Delete Column</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().addRowBefore().run()} disabled={!editor.can().addRowBefore()}>Add Row Before</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().addRowAfter().run()} disabled={!editor.can().addRowAfter()}>Add Row After</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteRow().run()} disabled={!editor.can().deleteRow()}>Delete Row</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteTable().run()} disabled={!editor.can().deleteTable()}>Delete Table</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().mergeCells().run()} disabled={!editor.can().mergeCells()}>Merge Cells</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().splitCell().run()} disabled={!editor.can().splitCell()}>Split Cell</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeaderColumn().run()} disabled={!editor.can().toggleHeaderColumn()}>Toggle Header Column</Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeaderRow().run()} disabled={!editor.can().toggleHeaderRow()}>Toggle Header Row</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Insert Table</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().addColumnBefore().run()} disabled={!e.can().addColumnBefore()}>Add Column Before</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().addColumnAfter().run()} disabled={!e.can().addColumnAfter()}>Add Column After</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().deleteColumn().run()} disabled={!e.can().deleteColumn()}>Delete Column</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().addRowBefore().run()} disabled={!e.can().addRowBefore()}>Add Row Before</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().addRowAfter().run()} disabled={!e.can().addRowAfter()}>Add Row After</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().deleteRow().run()} disabled={!e.can().deleteRow()}>Delete Row</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().deleteTable().run()} disabled={!e.can().deleteTable()}>Delete Table</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().mergeCells().run()} disabled={!e.can().mergeCells()}>Merge Cells</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().splitCell().run()} disabled={!e.can().splitCell()}>Split Cell</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().toggleHeaderColumn().run()} disabled={!e.can().toggleHeaderColumn()}>Toggle Header Column</Button>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => e.chain().focus().toggleHeaderRow().run()} disabled={!e.can().toggleHeaderRow()}>Toggle Header Row</Button>
                 </div>
             </PopoverContent>
         </Popover>
     </>
-);
+    );
+};
 
 
 const LinkEditor = ({ editor }: { editor: Editor }) => {
@@ -104,8 +107,11 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
+    // Cast editor to any to bypass strict typing issues with Tiptap extensions
+    const e = editor as any;
+
     const addImage = useCallback(async (file: File) => {
-        if (!editor || !file) return;
+        if (!e || !file) return;
         if (file.size / 1024 / 1024 > 5) {
              toast({ variant: 'destructive', title: 'File quá lớn', description: 'Vui lòng chọn ảnh có dung lượng dưới 5MB.' });
             return;
@@ -114,12 +120,12 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
         try {
             const uploadPath = `page-content/${Date.now()}-${file.name}`;
             const url = await uploadFile(file, uploadPath);
-            editor.chain().focus().setImage({ src: url }).run();
+            e.chain().focus().setImage({ src: url }).run();
         } catch (error) {
             console.error('Image upload failed', error);
             toast({ variant: 'destructive', title: 'Tải ảnh thất bại', description: 'Đã có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.' });
         }
-    }, [editor, toast]);
+    }, [e, toast]);
 
     const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -129,21 +135,21 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
 
     const addYoutubeVideo = useCallback(() => {
         const url = prompt('Nhập URL video YouTube:');
-        if (url && editor) {
-            editor.commands.setYoutubeVideo({
+        if (url && e) {
+            e.commands.setYoutubeVideo({
                 src: url,
             });
         }
-    }, [editor]);
+    }, [e]);
     
     
     useEffect(() => {
         if (fileInputRef.current) {
-            fileInputRef.current.addEventListener('change', handleFileChange);
+            fileInputRef.current.addEventListener('change', handleFileChange as any);
         }
         return () => {
             if (fileInputRef.current) {
-                fileInputRef.current.removeEventListener('change', handleFileChange);
+                fileInputRef.current.removeEventListener('change', handleFileChange as any);
             }
         };
     }, [handleFileChange]);
@@ -154,36 +160,36 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
         <div className="border border-input rounded-md p-1 flex flex-wrap items-center gap-1">
              <input type="file" ref={fileInputRef} className="hidden" accept="image/png, image/jpeg, image/gif, image/webp" />
              
-            <Toggle type="button" size="sm" pressed={editor.isActive('bold')} onPressedChange={() => editor.chain().focus().toggleBold().run()}><Bold className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('italic')} onPressedChange={() => editor.chain().focus().toggleItalic().run()}><Italic className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('strike')} onPressedChange={() => editor.chain().focus().toggleStrike().run()}><Strikethrough className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('highlight')} onPressedChange={() => editor.chain().focus().toggleHighlight().run()}><Highlighter className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('bold')} onPressedChange={() => e.chain().focus().toggleBold().run()}><Bold className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('italic')} onPressedChange={() => e.chain().focus().toggleItalic().run()}><Italic className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('strike')} onPressedChange={() => e.chain().focus().toggleStrike().run()}><Strikethrough className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('highlight')} onPressedChange={() => e.chain().focus().toggleHighlight().run()}><Highlighter className="h-4 w-4" /></Toggle>
 
             <Popover>
                 <PopoverTrigger asChild>
                     <Toggle type="button" size="sm" pressed={!!editor.getAttributes('textStyle').color}><Palette className="h-4 w-4" /></Toggle>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                    <input type="color" className="w-12 h-10 border-0 cursor-pointer" onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()} value={editor.getAttributes('textStyle').color || '#000000'} />
+                    <input type="color" className="w-12 h-10 border-0 cursor-pointer" onInput={(ev) => e.chain().focus().setColor((ev.target as HTMLInputElement).value).run()} value={editor.getAttributes('textStyle').color || '#000000'} />
                 </PopoverContent>
             </Popover>
 
             <Separator orientation="vertical" className="h-6" />
 
-            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 2 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 3 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}><Heading3 className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 4 })} onPressedChange={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}><Heading4 className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 2 })} onPressedChange={() => e.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 3 })} onPressedChange={() => e.chain().focus().toggleHeading({ level: 3 }).run()}><Heading3 className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('heading', { level: 4 })} onPressedChange={() => e.chain().focus().toggleHeading({ level: 4 }).run()}><Heading4 className="h-4 w-4" /></Toggle>
 
             <Separator orientation="vertical" className="h-6" />
 
-            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'left' })} onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}><AlignLeft className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'center' })} onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}><AlignCenter className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'right' })} onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}><AlignRight className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'left' })} onPressedChange={() => e.chain().focus().setTextAlign('left').run()}><AlignLeft className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'center' })} onPressedChange={() => e.chain().focus().setTextAlign('center').run()}><AlignCenter className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive({ textAlign: 'right' })} onPressedChange={() => e.chain().focus().setTextAlign('right').run()}><AlignRight className="h-4 w-4" /></Toggle>
             
             <Separator orientation="vertical" className="h-6" />
 
-            <Toggle type="button" size="sm" pressed={editor.isActive('bulletList')} onPressedChange={() => editor.chain().focus().toggleBulletList().run()}><List className="h-4 w-4" /></Toggle>
-            <Toggle type="button" size="sm" pressed={editor.isActive('orderedList')} onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}><ListOrdered className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('bulletList')} onPressedChange={() => e.chain().focus().toggleBulletList().run()}><List className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" pressed={editor.isActive('orderedList')} onPressedChange={() => e.chain().focus().toggleOrderedList().run()}><ListOrdered className="h-4 w-4" /></Toggle>
 
             <Separator orientation="vertical" className="h-6" />
             
@@ -203,7 +209,7 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
             
             <Separator orientation="vertical" className="h-6" />
 
-            <Toggle type="button" size="sm" onClick={() => editor.chain().focus().unsetAllMarks().run()}><RemoveFormatting className="h-4 w-4" /></Toggle>
+            <Toggle type="button" size="sm" onClick={() => e.chain().focus().unsetAllMarks().run()}><RemoveFormatting className="h-4 w-4" /></Toggle>
             <Toggle type="button" size="sm" pressed={viewMode === 'html'} onPressedChange={onToggleViewMode}><CodeXml className="h-4 w-4" /></Toggle>
         </div>
     );
@@ -253,7 +259,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         },
         onUpdate: ({ editor }) => {
             const dirtyHtml = editor.getHTML();
-            const cleanHtml = DOMPurify.sanitize(dirtyHtml, {
+            const cleanHtml = (DOMPurify as any).sanitize(dirtyHtml, {
                 ADD_TAGS: ['iframe', 'figure', 'figcaption'],
                 ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src', 'width', 'height', 'class', 'style', 'data-youtube-video', 'alt', 'title', 'target', 'rel'],
             });

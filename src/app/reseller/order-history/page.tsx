@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, Suspense, useMemo, useCallback } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { ExportOrdersButton } from '@/app/cms/admin/orders/_components/export-orders-button';
 import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
@@ -40,11 +40,9 @@ const formatPrice = (price: number) => {
 
 const formatDate = (dateInput: any): string => {
     if (!dateInput) return 'N/A';
-    // Handles Firestore Timestamps, ISO strings, and Date objects
     const date = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
     if (isNaN(date.getTime())) {
         try {
-            // Fallback for ISO strings that might not be directly constructible
             const parsed = Date.parse(dateInput);
             if (!isNaN(parsed)) {
                 return new Intl.DateTimeFormat('vi-VN', {
@@ -199,8 +197,8 @@ function ResellerOrderHistoryContent() {
                         </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order) => {
+                        {orders.length > 0 ? (
+                        orders.map((order) => {
                             const isCompleted = order.status === 'Hoàn thành';
                             const isPendingPayment = order.status === 'Chờ thanh toán';
                             

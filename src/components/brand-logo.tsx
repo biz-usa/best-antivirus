@@ -1,12 +1,11 @@
 
-
 'use client';
 
-import { Component, Briefcase, Building2, Computer, FileText, Folder, Laptop, Paintbrush, Shield, Wrench } from 'lucide-react';
+import { Component } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Brand } from '@/lib/types';
-import { useEffect, useState, React } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getBrands } from '@/lib/data';
 
 interface BrandLogoProps {
@@ -14,12 +13,13 @@ interface BrandLogoProps {
   className?: string;
 }
 
-const SvgLogo = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+const SvgLogo = ({ children, className, ...props }: React.SVGProps<SVGSVGElement>) => (
     <svg 
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 48 48" 
         className={cn("h-full w-full", className)}
         fill="currentColor"
+        {...props}
     >
         {children}
     </svg>
@@ -29,6 +29,7 @@ const LucideIcon = ({ name, className }: { name: string, className?: string }) =
     const toPascalCase = (str: string) =>
         str.toLowerCase().split(/[-_ ]+/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
     
+    // Explicitly cast Icons to any to allow dynamic access by string name
     const IconComponent = (Icons as any)[toPascalCase(name)];
 
     if (IconComponent) {
@@ -62,15 +63,15 @@ export function BrandLogo({ brand, className }: BrandLogoProps) {
         </SvgLogo>
     ),
     Adobe: (
-        <SvgLogo className={className}>
-            <g fill="#fa0f00">
+        <SvgLogo className={className} fill="#fa0f00">
+            <g>
                 <path d="M29.1 44h8.25L25.35 4H16.5l-12 30h8.25l2.4-6.6h11.7zm-5.4-12.45L26.25 25h-5.1l2.55-6.55z"/>
             </g>
         </SvgLogo>
     ),
     Kaspersky: (
-         <SvgLogo className={className}>
-            <g fill="#009900">
+         <SvgLogo className={className} fill="#009900">
+            <g>
                 <path d="M24 4L6 10v12c0 11.55 7.74 21.75 18 24 10.26-2.25 18-12.45 18-24V10L24 4zm0 22.5h15c-1.2 6.75-5.85 12.3-12 14.25V26.5H9V12.75l15-3.75v17.5z"/>
             </g>
         </SvgLogo>
@@ -92,8 +93,8 @@ export function BrandLogo({ brand, className }: BrandLogoProps) {
         </SvgLogo>
     ),
     Bitdefender: (
-        <SvgLogo className={className}>
-            <g fill="#ED1C24">
+        <SvgLogo className={className} fill="#ED1C24">
+            <g>
                 <path d="M24 4 6 10v12c0 11.55 7.74 21.75 18 24 10.26-2.25 18-12.45 18-24V10L24 4zm-4 32-8-8 3-3 5 5 11-11 3 3-14 14z"/>
             </g>
         </SvgLogo>
@@ -138,7 +139,7 @@ export function BrandLogo({ brand, className }: BrandLogoProps) {
   // Priority 1: Check for a predefined SVG logo.
   const BrandComponent = predefinedLogos[brand];
   if (BrandComponent) {
-    return BrandComponent;
+    return BrandComponent as React.ReactElement;
   }
 
   // Priority 2: Find the brand in our database and check if it has a custom Lucide icon set.

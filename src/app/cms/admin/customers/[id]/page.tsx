@@ -3,7 +3,7 @@
 
 import { notFound } from "next/navigation";
 import { getSiteConfig } from "@/lib/data";
-import { getAdminCustomerDetails } from "@/lib/admin-data"; // Use admin-data
+import { getAdminCustomerDetails } from "@/lib/admin-data";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, Star, Gem, Trophy, Diamond, UserX, StarIcon, ShoppingCart, DollarSign } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { LoyaltyTier, UserProfile } from "@/lib/types";
+import type { LoyaltyTier } from "@/lib/types";
 import React from 'react';
 import { CustomerRoleForm } from "./_components/customer-role-form";
 import { serializeForClient } from "@/lib/serializeForClient";
@@ -89,7 +89,10 @@ export default async function CustomerDetailsPage({ params }: Props) {
     const orders = serializeForClient(data.orders);
     
     const totalSpent = orders.reduce((acc: number, order: any) => acc + order.total, 0);
-    const TierIcon = tierIcons[profile.loyaltyTier || 'Chưa xếp hạng'];
+    
+    // Safely get the loyalty tier and icon
+    const userTier = (profile.loyaltyTier || 'Chưa xếp hạng') as LoyaltyTier;
+    const TierIcon = tierIcons[userTier] || tierIcons['Chưa xếp hạng'];
 
     return (
         <div className="space-y-6">

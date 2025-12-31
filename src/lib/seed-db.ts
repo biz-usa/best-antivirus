@@ -6,15 +6,21 @@
 // and you are authenticated with Firebase in your environment.
 
 import { db } from './firebase';
-import { collection, writeBatch, getDocs, query, doc, serverTimestamp } from 'firebase/firestore';
-import type { Product, Category, Review, Brand, PageContent } from './types';
+import { collection, writeBatch, doc, serverTimestamp } from 'firebase/firestore';
+import type { PageContent } from './types';
 import { config } from 'dotenv';
 config();
 
 
-const pagesData: Omit<PageContent, 'id' | 'updatedAt'>[] = [
+// We temporarily define a SeedPage type because PageContent uses 'id' as slug, 
+// but we want to be explicit in the seed data.
+interface SeedPage extends Omit<PageContent, 'id' | 'updatedAt'> {
+    id: string; // This will be the slug
+}
+
+const pagesData: SeedPage[] = [
     {
-        slug: 'about',
+        id: 'about',
         title: 'V\u1EC1 Saigonsoft.com',
         content: `<h2>S\u1EE9 m\u1EC7nh c\u1EE7a ch\u00FAng t\u00F4i</h2>
 <p>T\u1EA1i Saigonsoft.com, ch\u00FAng t\u00F4i tin r\u1EB1ng m\u1ECDi c\u00E1 nh\u00E2n v\u00E0 doanh nghi\u1EC7p \u0111\u1EC1u x\u1EE9ng \u0111\u00E1ng \u0111\u01B0\u1EE3c ti\u1EBFp c\u1EADn nh\u1EEFGng c\u00F4ng c\u1EE5 ph\u1EA7n m\u1EC1m t\u1ED1t nh\u1EA5t \u0111\u1EC3 l\u00E0m vi\u1EC7c v\u00E0 s\u00E1ng t\u1EA1o. S\u1EE9 m\u1EC7nh c\u1EE7a ch\u00FAng t\u00F4i l\u00E0 \u0111\u01A1n gi\u1EA3n h\u00F3a qu\u00E1 tr\u00ECnh t\u00ECm ki\u1EBFm, mua v\u00E0 qu\u1EA3n l\u00FD ph\u1EA7n m\u1EC1m b\u1EA3n quy\u1EC1n, mang l\u1EA1i c\u00E1c gi\u1EA3i ph\u00E1p c\u00F4ng ngh\u1EC7 ch\u00EDnh h\u00E3ng, an to\u00E0n v\u1EDBi chi ph\u00ED h\u1EE3p l\u00FD v\u00E0 d\u1ECBch v\u1EE5 h\u1ED7 tr\u1EE3 v\u01B0\u1EE3t tr\u1ED9i.</p>
@@ -29,7 +35,7 @@ const pagesData: Omit<PageContent, 'id' | 'updatedAt'>[] = [
 </ul>`
     },
     {
-        slug: 'contact',
+        id: 'contact',
         title: 'Li\u00EAn h\u1EC7',
         content: `
 <h2>V\u0103n ph\u00F2ng H\u1ED3ng K\u00F4ng</h2>
@@ -48,7 +54,7 @@ T\u1EACP \u0110O\u00C0N DOANH NGHI\u1EC6P S\u00C0I G\u00D2N<br>
         `
     },
     {
-        slug: 'privacy-policy',
+        id: 'privacy-policy',
         title: 'Ch\u00EDnh s\u00E1ch Quy\u1EC1n ri\u00EAng t\u01B0',
         content: `
 <h2>Ch\u00EDnh s\u00E1ch Quy\u1EC1n ri\u00EAng t\u01B0</h2>
@@ -71,7 +77,7 @@ T\u1EACP \u0110O\u00C0N DOANH NGHI\u1EC6P S\u00C0I G\u00D2N<br>
         `
     },
     {
-        slug: 'refund-policy',
+        id: 'refund-policy',
         title: 'Ch\u00EDnh s\u00E1ch \u0110\u1ED5i tr\u1EA3 & Ho\u00E0n ti\u1EC1n',
         content: `
 <h2>Ch\u00EDnh s\u00E1ch \u0110\u1ED5i tr\u1EA3 v\u00E0 Ho\u00E0n ti\u1EC1n</h2>
@@ -100,7 +106,7 @@ T\u1EACP \u0110O\u00C0N DOANH NGHI\u1EC6P S\u00C0I G\u00D2N<br>
         `
     },
     {
-        slug: 'terms-of-use',
+        id: 'terms-of-use',
         title: '\u0110i\u1EC1u kho\u1EA3n s\u1EED d\u1EE5ng',
         content: `
 <h2>\u0110i\u1EC1u kho\u1EA3n s\u1EED d\u1EE5ng</h2>
@@ -118,12 +124,12 @@ T\u1EACP \u0110O\u00C0N DOANH NGHI\u1EC6P S\u00C0I G\u00D2N<br>
         `
     },
     {
-        slug: 'trademarks',
+        id: 'trademarks',
         title: 'Th\u01B0\u01A1ng hi\u1EC7u',
         content: `
 <h2>Th\u01B0\u01A1ng hi\u1EC7u</h2>
 <p>T\u1EA5t c\u1EA3 c\u00E1c th\u01B0\u01A1ng hi\u1EC7u, nh\u00E3n hi\u1EC7u d\u1ECBch v\u1EE5, \u0111\u1ED3 h\u1ECDa v\u00E0 logo \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng li\u00EAn quan \u0111\u1EBFn trang web v\u00E0 c\u00E1c d\u1ECBch v\u1EE5 c\u1EE7a ch\u00FAng t\u00F4i l\u00E0 th\u01B0\u01A1ng hi\u1EC7u ho\u1EB7c nh\u00E3n hi\u1EC7u \u0111\u00E3 \u0111\u0103ng k\u00FD c\u1EE7a Saigonsoft.com ho\u1EB7c c\u00E1c b\u00EAn th\u1EE9 ba t\u01B0\u01A1ng \u1EE9ng.</p>
-<p>Vi\u1EC7c b\u1EA1n s\u1EED d\u1EE5ng trang web kh\u00F4ng c\u1EA5p cho b\u1EA1n b\u1EA5t k\u1EF3 quy\u1EC1n ho\u1EB7c gi\u1EA5y ph\u00E9p n\u00E0o \u0111\u1EC3 sao ch\u00E9p ho\u1EB7c s\u1EED d\u1EE5ng c\u00E1c th\u01B0\u01A1ng hi\u1EC7u c\u1EE7a Saigonsoft.com ho\u1EB7c c\u1EE7a b\u00EAn th\u1EE9 ba.</p>
+<p>Vi\u1EC7c b\u1EA1n s\u1EED d\u1EE5ng trang web kh\u00F4ng c\u1EA5p cho b\u1EA1n b\u1EA5t k\u1EF3 quy\u1EC1n ho\u1EB7c gi\u1EA5y ph\u00E9p n\u00E0o \u0111\u1EC3 sao ch\u00E9p ho\u1EB7c s\u1EED d\u1EE5ng c\u00E1c th\u01B0\u01A1ng hi\u1EC7u c\u1EE7a Saigonsoft.com ho\u1EB7c c\u00E1c b\u00EAn th\u1EE9 ba.</p>
 <p>M\u1ED9t s\u1ED1 th\u01B0\u01A1ng hi\u1EC7u c\u00F3 th\u1EC3 xu\u1EA5t hi\u1EC7n tr\u00EAn trang web c\u1EE7a ch\u00FAng t\u00F4i bao g\u1ED3m:</p>
 <ul>
     <li>Microsoft, Windows, Office 365</li>
@@ -146,7 +152,7 @@ async function seedDatabase() {
     const pagesCol = collection(db, 'pages');
     console.log(`Seeding ${pagesData.length} pages...`);
     pagesData.forEach(page => {
-        const docRef = doc(pagesCol, page.slug);
+        const docRef = doc(pagesCol, page.id);
         batch.set(docRef, { 
             title: page.title,
             content: page.content,

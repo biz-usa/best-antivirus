@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  output: "standalone",
   images: {
     remotePatterns: [
       {
@@ -16,11 +11,8 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '2mb', // Allow larger bodies for AI image generation
+      bodySizeLimit: '10mb',
     },
-    // Increase the timeout for server actions that may take a while
-    // such as AI image generation or complex data processing.
-    serverActionsTimeout: 120000, // 2 minutes
   },
 };
 

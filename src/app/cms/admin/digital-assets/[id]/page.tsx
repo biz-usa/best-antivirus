@@ -252,8 +252,14 @@ export default function DigitalAssetManagementPage() {
     if (!product) return;
     setIsSaving(true);
     try {
+        const cleanVariants = variantsData.map(v => ({
+            ...v,
+            saleStartDate: (v.saleStartDate as any)?.toDate ? (v.saleStartDate as any).toDate() : v.saleStartDate,
+            saleEndDate: (v.saleEndDate as any)?.toDate ? (v.saleEndDate as any).toDate() : v.saleEndDate,
+        }));
+
         await updateProductAssets(product.id!, {
-            variants: variantsData,
+            variants: cleanVariants as any,
             guide: guideContent,
         });
         toast({

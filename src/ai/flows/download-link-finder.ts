@@ -9,6 +9,8 @@ import { JSDOM } from 'jsdom';
 import { ai, getModelByName } from '@/ai/genkit';
 import { DownloadLinkFinderOutputSchema, type DownloadLinkFinderOutput, DownloadLinkFinderInputSchema, type DownloadLinkFinderInput } from '@/lib/schemas/download-link-finder';
 
+// Export types for consumers
+export type { DownloadLinkFinderInput, DownloadLinkFinderOutput };
 
 async function fetchAndParseUrl(url: string): Promise<Document> {
   // In a real-world scenario, you might want to use a more robust headless browser solution

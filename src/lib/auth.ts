@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -23,7 +22,6 @@ import {
   ConfirmationResult,
   OAuthProvider,
   ActionCodeSettings,
-  generatePasswordResetLink,
 } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, setDoc, getDoc, Timestamp, serverTimestamp } from 'firebase/firestore';

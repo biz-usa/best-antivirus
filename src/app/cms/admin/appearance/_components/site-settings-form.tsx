@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -83,7 +82,19 @@ export function SiteSettingsForm({ initialData }: SiteSettingsFormProps) {
           return;
         }
 
-        await updateAppearance(data);
+        // Merge with initialData to ensure required fields like navLinks are present
+        const cleanData = {
+            theme: {
+                fontFamily: data.theme.fontFamily || 'Inter',
+            },
+            header: {
+                ...initialData.header, // Preserve navLinks and other existing header props
+                logoLightUrl: data.header.logoLightUrl,
+                logoDarkUrl: data.header.logoDarkUrl,
+            }
+        };
+
+        await updateAppearance(cleanData);
         toast({
           title: 'Thành công!',
           description: 'Cài đặt giao diện chung đã được cập nhật.',
