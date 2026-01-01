@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -20,13 +19,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
 import { LoaderCircle, Save } from 'lucide-react';
-import { updateIntegrations } from '../../actions';
+import { updateEmailTemplates } from '../../actions'; // Use correct action
 import type { SiteConfig } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -68,7 +66,7 @@ export function EmailTemplatesForm({ initialData }: EmailTemplatesFormProps) {
   const onSubmit = (data: FormValues) => {
     startTransition(async () => {
       try {
-        await updateIntegrations({ emailTemplates: data.emailTemplates });
+        await updateEmailTemplates({ emailTemplates: data.emailTemplates });
         toast({
           title: 'Thành công!',
           description: 'Các mẫu email đã được cập nhật.',

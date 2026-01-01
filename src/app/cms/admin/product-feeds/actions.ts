@@ -1,9 +1,8 @@
 
-
 'use server';
 
 import { getProducts } from '@/lib/data';
-import { builder } from 'xmlbuilder2';
+import { create } from 'xmlbuilder2';
 import type { Product, ProductVariant } from '@/lib/types';
 
 export type ExportFormat = 'xml' | 'csv' | 'txt';
@@ -23,7 +22,7 @@ function createXmlElement(parent: any, tagName: string, textContent: any) {
 }
 
 function generateXml(products: Product[], baseUrl: string): string {
-    const root = builder({ version: '1.0', encoding: 'UTF-8' })
+    const root = create({ version: '1.0', encoding: 'UTF-8' })
         .ele('products');
 
     for (const product of products) {
@@ -137,7 +136,7 @@ function generateTxt(products: Product[], baseUrl: string): string {
 
 export async function exportProducts(format: ExportFormat): Promise<{ content: string; fileName: string; contentType: string }> {
     const products = await getProducts();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     
     if (format === 'xml') {
         const xmlContent = generateXml(products, baseUrl);

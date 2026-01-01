@@ -20,15 +20,13 @@ export function SaleCountdown({ saleEndDate, className }: SaleCountdownProps) {
 
   const calculateTimeLeft = () => {
     const difference = +new Date(saleEndDate) - +new Date();
-    let timeLeft = {};
+    const timeLeft: Record<string, number> = {};
 
     if (difference > 0) {
-      timeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
+      timeLeft['d'] = Math.floor(difference / (1000 * 60 * 60 * 24));
+      timeLeft['h'] = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      timeLeft['m'] = Math.floor((difference / 1000 / 60) % 60);
+      timeLeft['s'] = Math.floor((difference / 1000) % 60);
     }
     return timeLeft;
   };
@@ -49,18 +47,23 @@ export function SaleCountdown({ saleEndDate, className }: SaleCountdownProps) {
   const timerComponents: JSX.Element[] = [];
 
   Object.entries(timeLeft).forEach(([interval, value]) => {
-    if (value > 0) {
+     // Show all units if we have time left, or filter as needed.
+     // Simplified logic: show if value > 0 or if larger units exist?
+     // For simplicity, just showing non-zero or all components if active.
+     // But original logic was "if value > 0".
+    if (timeLeft[interval] !== undefined) {
       timerComponents.push(
         <span key={interval} className="tabular-nums">
           {String(value).padStart(2, '0')}
-          <span className="text-xs">{interval[0]}</span>
+          <span className="text-xs ml-0.5">{interval}</span>
         </span>
       );
     }
   });
 
-  if (!isClient || !timerComponents.length) {
-    return null; // Return null on the server and initial client render to prevent mismatch
+  // If no time left, components empty
+  if (!isClient || !Object.keys(timeLeft).length) {
+    return null; 
   }
 
   return (

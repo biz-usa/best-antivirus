@@ -7,11 +7,13 @@ import { getFirebaseAdminApp } from '@/lib/firebase-admin';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { AdminUser, LoyaltyTier, Permission, SiteConfig } from '@/lib/types';
-import { updateSiteConfig } from '@/lib/data'; // Ideally this should also use Admin SDK if writing
+import { updateSiteConfig } from '@/lib/data';
 
 // Initialize Admin App and Firestore
 const adminApp = getFirebaseAdminApp();
 const adminDb = getFirestore(adminApp);
+
+// ... (other actions kept same, appending new one)
 
 // =================================================================
 // Customers Actions
@@ -76,13 +78,13 @@ export async function updateUserLoyalty(uid: string, loyaltyTier: LoyaltyTier, l
 const moderatorSchema = z.object({
   email: z.string().email("Email không hợp lệ."),
   role: z.enum(['superadmin', 'moderator']),
-  permissions: z.array(z.string()), // We'll validate against Permission type on the server
+  permissions: z.array(z.string()),
 });
 
 const ALL_PERMISSIONS: Permission[] = [
     'manage_products', 'manage_orders', 'manage_discounts', 'manage_digital_assets', 'manage_customers', 'manage_pages', 'manage_categories', 'manage_brands',
     'manage_email_campaigns', 'manage_plugins', 'manage_appearance', 'manage_product_feeds', 'manage_authentication', 'manage_payments', 'manage_integrations', 'manage_tax_settings', 'manage_moderators',
-    'manage_loyalty_program' // Add new permission
+    'manage_loyalty_program'
 ];
 
 function validatePermissions(permissions: string[]): Permission[] {
@@ -157,7 +159,6 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     const snapshot = await adminDb.collection('admin_users').orderBy('createdAt', 'desc').get();
     return snapshot.docs.map(doc => {
         const data = doc.data();
-        // Convert Admin Timestamp to client-compatible format if necessary, or just return as is
         return { 
             id: doc.id, 
             ...data 
@@ -224,10 +225,6 @@ export async function deleteTaxRate(id: string) {
 export async function updateDefaultTaxCountry(data: z.infer<typeof defaultCountrySchema>) {
     const validatedData = defaultCountrySchema.parse(data);
     try {
-        // We still use updateSiteConfig from lib/data because it might have complex logic
-        // But for consistency in this file, we should arguably implement it here.
-        // For now, assuming updateSiteConfig uses Client SDK (which is bad for admin actions)
-        // Let's implement a direct update using Admin SDK here.
         await adminDb.collection('site_config').doc('main').set({ tax: validatedData.tax }, { merge: true });
         revalidatePath('/');
     } catch (error) {
@@ -430,4 +427,18 @@ export async function updateIntegrations(data: Partial<z.infer<typeof integratio
     console.error('Error updating integrations settings:', error);
     throw new Error('Không thể cập nhật cài đặt tích hợp.');
   }
+}
+
+// =================================================================
+// Email Template Actions
+// =================================================================
+export async function updateEmailTemplates(data: { emailTemplates: SiteConfig['emailTemplates'] }) {
+    try {
+        // Validate or assume data is correct as it's coming from typed form
+        await adminDb.collection('site_config').doc('main').set({ emailTemplates: data.emailTemplates }, { merge: true });
+        revalidatePath('/');
+    } catch (error) {
+        console.error('Error updating email templates:', error);
+        throw new Error('Không thể cập nhật mẫu email.');
+    }
 }

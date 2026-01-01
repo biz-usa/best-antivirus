@@ -34,11 +34,17 @@ export function ProductCard({ product, showPrice = true }: ProductCardProps) {
   const displayVariant = product.variants?.find(v => v.name.toLowerCase() === 'mặc định') || product.variants?.[0];
   const now = new Date();
   
+  // Helper to safely parse date/timestamp
+  const parseDate = (d: any) => d?.toDate ? d.toDate() : (d ? new Date(d) : undefined);
+
+  const saleStartDate = parseDate(displayVariant?.saleStartDate);
+  const saleEndDate = parseDate(displayVariant?.saleEndDate);
+
   const isSaleActive = 
     displayVariant?.salePrice && 
     displayVariant.salePrice < displayVariant.price &&
-    (!displayVariant.saleStartDate || new Date(displayVariant.saleStartDate) <= now) &&
-    (!displayVariant.saleEndDate || new Date(displayVariant.saleEndDate) >= now);
+    (!saleStartDate || saleStartDate <= now) &&
+    (!saleEndDate || saleEndDate >= now);
     
   const isInStock = product.variants?.some(v => v.licenseKeys && v.licenseKeys.available && v.licenseKeys.available.length > 0);
   
@@ -73,9 +79,9 @@ export function ProductCard({ product, showPrice = true }: ProductCardProps) {
              <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm p-2 rounded-md">
                  <BrandLogo brand={product.brand} className="h-6 w-6 text-foreground" />
              </div>
-             {showOriginalPrice && displayVariant!.saleEndDate && (
+             {showOriginalPrice && saleEndDate && (
                 <div className="absolute top-0 left-0 w-full p-2">
-                    <SaleCountdown saleEndDate={displayVariant!.saleEndDate} />
+                    <SaleCountdown saleEndDate={saleEndDate} />
                 </div>
              )}
               <div className="absolute bottom-4 left-4">
