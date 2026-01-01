@@ -53,13 +53,23 @@ export async function placeOrder(data: z.infer<typeof placeOrderSchema>): Promis
 
         const customOrderId = `SGS-${newOrderNumber}`;
         const newOrderRef = doc(db, 'orders', customOrderId);
-
-        transaction.set(newOrderRef, {
-            ...validatedData,
-            id: customOrderId, // Save custom ID inside the document as well
+        
+        // Construct the order data object carefully
+        const { loyaltyDiscount, ...restOfData } = validatedData;
+        
+        const orderData: any = {
+            ...restOfData,
+            id: customOrderId,
             status: 'Chờ thanh toán',
             createdAt: serverTimestamp(),
-        });
+        };
+
+        // Only add loyaltyDiscount if it exists and is greater than 0
+        if (loyaltyDiscount && loyaltyDiscount > 0) {
+            orderData.loyaltyDiscount = loyaltyDiscount;
+        }
+
+        transaction.set(newOrderRef, orderData);
         
         transaction.set(counterRef, { lastOrderNumber: newOrderNumber }, { merge: true });
         
