@@ -2,7 +2,7 @@
 
 'use client';
 
-import { getSiteConfig, getDiscounts, getCampaignHistory } from "@/lib/data";
+import { getDiscounts, getCampaignHistory } from "@/lib/data";
 import { EmailCampaignForm } from "./_components/email-campaign-form";
 import { CampaignHistoryTable } from "./_components/campaign-history-table";
 import { serializeForClient } from "@/lib/serializeForClient";
@@ -12,14 +12,26 @@ import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { useToast } from "@/hooks/use-toast";
 
+type TargetAudience = "all" | "subscribers" | "customers";
+
+interface FormState {
+    key: number;
+    initialData: {
+        subject: string;
+        content: string;
+        discountCode: string;
+        targetAudience: TargetAudience;
+    }
+}
+
 export default function AdminEmailPage() {
     const [discounts, setDiscounts] = useState<Discount[]>([]);
     const [history, setHistory] = useState<CampaignHistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('compose');
     const { toast } = useToast();
-    const [formState, setFormState] = useImmer({
-        key: Date.now(), // Add a key to force re-mounting the form
+    const [formState, setFormState] = useImmer<FormState>({
+        key: Date.now(),
         initialData: {
             subject: '',
             content: '',
@@ -49,7 +61,7 @@ export default function AdminEmailPage() {
                 subject: campaign.subject,
                 content: campaign.content,
                 discountCode: campaign.discountCode || 'none',
-                targetAudience: campaign.targetAudience,
+                targetAudience: (campaign.targetAudience as TargetAudience) || 'all',
             };
         });
         setActiveTab('compose');

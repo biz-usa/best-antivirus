@@ -75,7 +75,7 @@ function AppleIcon() {
 
 function CheckoutPageContent({ siteConfig }: { siteConfig: SiteConfig }) {
   const { user, loading: authLoading } = useAuth();
-  const { items, cartCount, clearCart, totalPrice, vat, totalWithVat, discountAmount, appliedDiscount } = useCartStore();
+  const { items, cartCount, clearCart, totalPrice, vat, totalWithVat, discountAmount, loyaltyDiscountAmount, appliedDiscount } = useCartStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
@@ -276,7 +276,8 @@ function CheckoutPageContent({ siteConfig }: { siteConfig: SiteConfig }) {
             vat: vatAmount,
             total: finalTotal,
             paymentMethod: data.paymentMethod,
-            discount: discountPayload
+            discount: discountPayload,
+            loyaltyDiscount: loyaltyDiscountAmount(),
         });
 
         clearCart();

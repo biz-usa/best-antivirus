@@ -33,6 +33,7 @@ const placeOrderSchema = z.object({
     code: z.string(),
     value: z.number(), // The calculated discount amount
   }).optional(),
+  loyaltyDiscount: z.number().optional(), // Added field
 });
 
 export async function placeOrder(data: z.infer<typeof placeOrderSchema>): Promise<string> {

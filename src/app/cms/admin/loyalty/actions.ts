@@ -1,13 +1,13 @@
 
-
 'use server';
 
 import { z } from 'zod';
 import { updateSiteConfig } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
+import type { LoyaltySettings } from '@/lib/types';
 
 const loyaltyTierSchema = z.object({
-  name: z.string(),
+  name: z.string().transform(val => val as any), // Cast name to any to satisfy LoyaltyTier type
   minPoints: z.coerce.number(),
   discountPercentage: z.coerce.number(),
   benefits: z.array(z.string()),
@@ -36,7 +36,7 @@ export async function updateLoyaltySettings(data: z.infer<typeof loyaltySettings
   const validatedData = loyaltySettingsSchema.parse(data);
 
   try {
-    await updateSiteConfig({ loyalty: validatedData.loyalty });
+    await updateSiteConfig({ loyalty: validatedData.loyalty as unknown as LoyaltySettings });
     revalidatePath('/');
   } catch (error) {
     console.error('Error updating loyalty settings:', error);

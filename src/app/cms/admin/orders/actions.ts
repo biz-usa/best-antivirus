@@ -61,7 +61,7 @@ async function assignLicenseKeys(order: Order) {
                     key,
                     orderId: order.id,
                     customerId: order.customer.id!,
-                    assignedAt: Timestamp.now(),
+                    assignedAt: new Date(), // Use Date instead of Timestamp to avoid type mismatch
                 });
             }
 

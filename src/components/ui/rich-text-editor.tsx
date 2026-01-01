@@ -36,7 +36,6 @@ interface RichTextEditorProps {
 }
 
 const TableToolbar = ({ editor }: { editor: Editor }) => {
-    // Cast to any to avoid type errors with chained commands
     const e = editor as any;
     return (
     <>
@@ -107,7 +106,6 @@ const EditorToolbar = ({ editor, viewMode, onToggleViewMode }: { editor: Editor 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
-    // Cast editor to any to bypass strict typing issues with Tiptap extensions
     const e = editor as any;
 
     const addImage = useCallback(async (file: File) => {
@@ -250,7 +248,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
             TableRow,
             TableHeader,
             TableCell,
-        ],
+        ] as any, // Cast extensions array to any to avoid type mismatch hell
         content: content,
         editorProps: {
             attributes: {
@@ -259,6 +257,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         },
         onUpdate: ({ editor }) => {
             const dirtyHtml = editor.getHTML();
+            // Cast DOMPurify to any to avoid type issues with sanitize method
             const cleanHtml = (DOMPurify as any).sanitize(dirtyHtml, {
                 ADD_TAGS: ['iframe', 'figure', 'figcaption'],
                 ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src', 'width', 'height', 'class', 'style', 'data-youtube-video', 'alt', 'title', 'target', 'rel'],

@@ -130,10 +130,12 @@ export function EmailCampaignForm({ discounts, initialData }: EmailCampaignFormP
     startSendingTransition(async () => {
       try {
         const finalData = {
-          ...data,
+          subject: data.subject,
+          body: data.content, // Map content to body
+          targetAudience: data.targetAudience,
           discountCode: data.discountCode === 'none' ? undefined : data.discountCode,
         };
-        // The original `sendCampaignEmail` expects `sendEmailCampaign` in actions.ts
+        
         const result = await sendEmailCampaign(finalData);
         
         toast({
@@ -162,7 +164,7 @@ export function EmailCampaignForm({ discounts, initialData }: EmailCampaignFormP
     setIsGenerating(true);
     try {
         const selectedDiscountCode = form.getValues('discountCode') === 'none' ? undefined : form.getValues('discountCode');
-        const productNamePlaceholder = "Phần mềm bảo mật"; // Placeholder since actual product name is not available here
+        const productNamePlaceholder = "Phần mềm bảo mật"; 
         const audience = form.getValues('targetAudience');
 
         const result = await generateEmailCampaignContent({ 
@@ -170,11 +172,13 @@ export function EmailCampaignForm({ discounts, initialData }: EmailCampaignFormP
             discountCode: selectedDiscountCode,
             audience: audience,
         });
-        form.setValue('subject', result.subject, { shouldDirty: true }); // Assuming result has a subject field
-        form.setValue('content', result.content, { shouldDirty: true }); // Assuming result has a content field
+        
+        // Result is string content
+        form.setValue('content', result, { shouldDirty: true });
+        
         toast({
             title: 'Đã tạo nội dung!',
-            description: 'AI đã điền tiêu đề và nội dung vào biểu mẫu.'
+            description: 'AI đã điền nội dung vào biểu mẫu. Vui lòng thêm tiêu đề.'
         });
     } catch (error: any) {
         toast({
@@ -197,11 +201,11 @@ export function EmailCampaignForm({ discounts, initialData }: EmailCampaignFormP
             <CardHeader>
                 <CardTitle>Tạo bằng AI</CardTitle>
                 <CardDescription>
-                   Nhập chủ đề bạn muốn viết, AI sẽ tự động tạo tiêu đề và nội dung email.
+                   Nhập chủ đề bạn muốn viết, AI sẽ tự động tạo nội dung email.
                 </CardDescription>
             </CardHeader>
              <CardContent>
-                <FormLabel>Chủ đề Email</FormLabel>
+                <FormLabel>Chủ đề Email (Gợi ý cho AI)</FormLabel>
                 <div className="flex flex-col sm:flex-row gap-2 mt-2">
                     <Input
                         placeholder="Ví dụ: Giới thiệu phần mềm diệt virus mới"
@@ -256,10 +260,8 @@ export function EmailCampaignForm({ discounts, initialData }: EmailCampaignFormP
                             </FormControl>
                             <SelectContent>
                                 <SelectItem value="all">Tất cả khách hàng</SelectItem>
-                                <SelectItem value="unpaid">Khách có đơn hàng chưa thanh toán</SelectItem>
-                                <SelectItem value="active_30">Khách mua hàng trong 30 ngày qua</SelectItem>
-                                <SelectItem value="active_90">Khách mua hàng trong 90 ngày qua</SelectItem>
-                                <SelectItem value="inactive_90">Khách không hoạt động (hơn 90 ngày)</SelectItem>
+                                <SelectItem value="subscribers">Người đăng ký nhận tin</SelectItem>
+                                <SelectItem value="customers">Khách hàng đã mua</SelectItem>
                             </SelectContent>
                         </Select>
                         <FormMessage />

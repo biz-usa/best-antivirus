@@ -40,7 +40,7 @@ import type { AdminUser, Permission } from '@/lib/types';
 import { addModerator, updateModerator } from '@/app/cms/admin/actions';
 import { Separator } from '@/components/ui/separator';
 
-const permissionOptions: { id: Permission; label: string, description: string }[] = [
+const permissionData = [
     { id: 'manage_products', label: 'Sản phẩm', description: 'Thêm, sửa, xóa sản phẩm.' },
     { id: 'manage_orders', label: 'Đơn hàng', description: 'Xem và cập nhật trạng thái đơn hàng.' },
     { id: 'manage_discounts', label: 'Mã giảm giá', description: 'Quản lý mã giảm giá.' },
@@ -59,7 +59,11 @@ const permissionOptions: { id: Permission; label: string, description: string }[
     { id: 'manage_integrations', label: 'Tích hợp & API', description: 'Quản lý các API keys.' },
     { id: 'manage_tax_settings', label: 'Cài đặt Thuế', description: 'Quản lý các quy tắc thuế.' },
     { id: 'manage_moderators', label: 'Quản trị viên', description: 'Thêm, sửa, xóa các quản trị viên khác.' },
-].sort((a,b) => a.label.localeCompare(b.label));
+] as const;
+
+const permissionOptions: { id: Permission; label: string, description: string }[] = permissionData
+    .map(p => ({ ...p, id: p.id as Permission }))
+    .sort((a,b) => a.label.localeCompare(b.label));
 
 const moderatorSchema = z.object({
   email: z.string().email("Email không hợp lệ."),
@@ -226,5 +230,3 @@ export function ModeratorForm({ initialData }: ModeratorFormProps) {
       </Form>
   );
 }
-
-    

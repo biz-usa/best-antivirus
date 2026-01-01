@@ -77,7 +77,7 @@ export function OrderDetailsClient({ order, itemsWithDetails, siteConfig }: Orde
   const vat = order.vat ?? subtotal * VAT_RATE;
   const total = order.total ?? subtotal + vat;
   const manualDiscount = order.discount?.value ?? 0;
-  const loyaltyDiscount = (order.subtotal + (order.vat || 0)) - manualDiscount - order.total;
+  const loyaltyDiscount = order.loyaltyDiscount ?? 0;
 
 
   const logoUrl = siteConfig.companyInfo?.logoUrl;
@@ -217,6 +217,11 @@ export function OrderDetailsClient({ order, itemsWithDetails, siteConfig }: Orde
               <span>Thuế GTGT (VAT @ {VAT_RATE * 100}%)</span>
               <span>{formatCurrency(vat)}</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Phí vận chuyển</span>
+              <span>{formatCurrency(0)}</span>
+            </div>
+            <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>Tổng cộng</span>
               <span>{formatCurrency(total)}</span>

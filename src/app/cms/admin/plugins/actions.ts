@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { z } from 'zod';
@@ -84,7 +83,8 @@ export async function updatePluginSettings(data: PluginSettingsSchema) {
   };
 
   try {
-    await updateSiteConfig({ plugins: processedData.plugins });
+    // Cast plugins to any to bypass strict type checking for partial updates
+    await updateSiteConfig({ plugins: processedData.plugins as any });
     
     revalidatePath('/', 'layout');
 

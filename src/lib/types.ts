@@ -143,6 +143,7 @@ export interface Order {
         code: string;
         value: number;
     };
+    loyaltyDiscount?: number;
 }
 
 export type LoyaltyTier = 'Đồng' | 'Bạc' | 'Vàng' | 'Kim Cương' | 'Chưa xếp hạng';
