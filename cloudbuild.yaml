@@ -1,5 +1,26 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/genkit-service', '-f', 'genkit.Dockerfile', '.']
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/nextjs-app', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/nextjs-app']
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'nextjs-app'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/nextjs-app'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
 images:
-- 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/genkit-service'
+  - 'us-central1-docker.pkg.dev/best-antivirus-24403374-380a5/cloud-run-source-deploy/nextjs-app'
